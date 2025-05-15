@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史版本 - 哪吒X车机优化模块</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4A90E2;
+            --primary-dark: #357ABD;
+            --secondary: #6BB9F0;
+            --dark: #2C3E50;
+            --light: #F5F7FA;
+            --accent: #A2DED0;
+            --card-bg: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            line-height: 1.7;
+            color: #333;
+            background-color: var(--light);
+            overflow-x: hidden;
+            padding-top: 60px;
+        }
+
+        /* 导航栏样式 - 优化单行显示 */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            padding: 0.8rem 1rem;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-weight: bold;
+            color: var(--dark);
+            text-decoration: none;
+            font-size: clamp(0.9rem, 4vw, 1.1rem);
+            white-space: nowrap;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-link {
+            color: var(--dark);
+            text-decoration: none;
+            padding: 0.3rem 0.5rem;
+            font-size: clamp(0.8rem, 3.5vw, 0.95rem);
+            white-space: nowrap;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-link:hover {
+            background: rgba(74, 144, 226, 0.1);
+        }
+
+        .nav-link i {
+            margin-right: 0.3rem;
+            font-size: clamp(0.9rem, 4vw, 1rem);
+        }
+
+        /* 历史版本页特有样式 */
+        .version-header {
+            padding: 3rem 1rem 2rem;
+            background: linear-gradient(135deg, var(--light) 0%, var(--secondary) 100%);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .version-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://new-official-website-prod.oss-cn-hangzhou.aliyuncs.com/cmsstatic/static/images/car-x-device-a24.webp') no-repeat center center/cover;
+            opacity: 0.1;
+        }
+
+        .version-header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 6vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            line-height: 1.2;
+        }
+
+        .version-subtitle {
+            font-size: clamp(1rem, 4vw, 1.3rem);
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .current-version {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem auto;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: left;
+        }
+
+        .current-version-title {
+            font-size: clamp(1.2rem, 5vw, 1.5rem);
+            margin-bottom: 1rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+        }
+
+        .current-version-title i {
+            margin-right: 0.8rem;
+        }
+
+        .version-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .version-timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .version-timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 7px;
+            height: 100%;
+            width: 2px;
+            background: var(--primary);
+        }
+
+        .version-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .version-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .version-card::before {
+            content: '';
+            position: absolute;
+            top: 1.8rem;
+            left: -30px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid var(--light);
+        }
+
+        .version-title {
+            font-size: clamp(1.2rem, 5vw, 1.4rem);
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .version-date {
+            font-size: clamp(0.9rem, 3vw, 1rem);
+            color: #666;
+            font-weight: normal;
+        }
+
+        .version-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .badge-stable {
+            background: #27ae60;
+            color: white;
+        }
+
+        .badge-beta {
+            background: #f39c12;
+            color: white;
+        }
+
+        .badge-deprecated {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .version-content {
+            margin-top: 1rem;
+        }
+
+        .version-features {
+            margin-top: 1rem;
+        }
+
+        .version-features h4 {
+            font-size: clamp(1rem, 4vw, 1.1rem);
+            margin: 1rem 0 0.5rem;
+            color: var(--dark);
+        }
+
+        .version-features ul {
+            list-style-position: inside;
+            padding-left: 0.5rem;
+        }
+
+        .version-features li {
+            margin-bottom: 0.5rem;
+            font-size: clamp(0.9rem, 3.5vw, 1rem);
+        }
+
+        .version-download {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            background: var(--primary);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: clamp(0.9rem, 3.5vw, 1rem);
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(74, 144, 226, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
+        }
+
+        .download-btn i {
+            margin-right: 0.5rem;
+        }
+
+        .file-info {
+            font-size: clamp(0.8rem, 3vw, 0.9rem);
+            color: #666;
+        }
+
+        .back-to-home {
+            display: inline-block;
+            margin-top: 2rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: clamp(1rem, 4vw, 1.1rem);
+            transition: all 0.3s ease;
+        }
+
+        .back-to-home:hover {
+            text-decoration: underline;
+        }
+
+        .back-to-home i {
+            margin-right: 0.5rem;
+        }
+
+        /* 响应式调整 */
+        @media (min-width: 768px) {
+            .version-header {
+                padding: 4rem 2rem;
+            }
+
+            .version-container {
+                padding: 3rem 2rem;
+            }
+
+            .version-card {
+                padding: 2rem;
+            }
+
+            .download-btn {
+                padding: 0.8rem 1.5rem;
+            }
+        }
+
+        /* 极小屏幕优化 */
+        @media (max-width: 360px) {
+            .nav-link span {
+                display: none;
+            }
+
+            .nav-link i {
+                margin-right: 0;
+            }
+
+            .version-title {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .version-badge {
+                margin-left: 0;
+                margin-top: 0.3rem;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate {
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        .delay-1 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.4s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.6s;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 固定导航栏 -->
+    <header>
+        <nav>
+            <a href="index.html" class="nav-brand"><span> 哪吒X车机优化模块</span></a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link"><i class="fas fa-home"></i><span> 首页</span></a>
+                <a href="versions.html" class="nav-link active"><i class="fas fa-history"></i><span> 版本</span></a>
+                <a target="_blank" class="nav-link"
+                    href="https://qm.qq.com/cgi-bin/qm/qr?k=rM-64vZFkPmz1RK9An9j6Z5SX9MoSjPv&jump_from=webapi&authKey=yI7swh/WP+JNeF/GvfEQ5E5rFL5hJZZ85RbldqIEpwSmGX1tgSvC5rUnrsPf8gmf"><i
+                        class="fas fa-users"></i><span> QQ群</span></a>
+            </div>
+        </nav>
+    </header>
+    <section class="version-header">
+        <div class="version-header-content">
+            <h1 class="animate">哪吒插 - 车机优化模块历史版本</h1>
+            <p class="version-subtitle animate delay-1">查看所有发布过的版本信息、更新内容和下载链接</p>
+
+            <div class="current-version animate delay-2">
+                <h2 class="current-version-title">
+                    <i class="fas fa-star"></i> 当前稳定版本: v1.0.0 - beta
+                </h2>
+                <p>推荐所有用户升级到此版本，获取最佳体验和最新功能</p>
+                <div class="version-download">
+                    <a href="./apps/netaX-v1.0.0-beta.apk" class="download-btn">
+                        <i class="fas fa-download"></i> 下载最新版
+                    </a>
+                    <span class="file-info">文件大小: 2.13MB | 更新日期: 2025-05-02</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="version-container">
+        <div class="version-timeline">
+            <!-- 版本 1.0.0 -->
+            <!-- <div class="version-card animate">
+                <div class="version-title">
+                    <span>v1.0.0 <span class="version-badge badge-stable">正式版</span><span class="version-badge badge-stable">稳定版</span></span>
+                    <span class="version-date">2025-06-01</span>
+                </div>
+                <div class="version-content">
+                    <p>全面优化性能和稳定性，新增多项实用功能</p>
+
+                    <div class="version-features">
+                        <h4>新增功能：</h4>
+                        <ul>
+                            <li>新增APP后台清理</li>
+                            <li>新增返回键，支持长按自定义功能</li>
+                        </ul>
+                    </div>
+
+                    <div class="version-download">
+                        <a href="nezha_x_mod_v1.2.0.apk" class="download-btn">
+                            <i class="fas fa-download"></i> 下载 v1.0.0
+                        </a>
+                        <span class="file-info">MD5:  | 文件大小: MB</span>
+                    </div>
+                </div>
+            </div> -->
+
+
+            <!-- 版本 1.0.0 - beta -->
+            <div class="version-card animate delay-2">
+                <div class="version-title">
+                    <span>v1.0.0 - beta <span class="version-badge badge-stable">公测版</span></span>
+                    <span class="version-date">2025-05-02</span>
+                </div>
+                <div class="version-content">
+                    <p>首个公开测试版本，基础功能完善</p>
+
+                    <div class="version-features">
+                        <h4>初始功能：</h4>
+                        <ul>
+                            <li>ROOT权限检查</li>
+                            <li>模块状态检查</li>
+                            <li>修复悬浮窗闪屏</li>
+                        </ul>
+                    </div>
+
+                    <div class="version-download">
+                        <a href="./apps/netaX-v1.0.0-beta.apk" class="download-btn">
+                            <i class="fas fa-download"></i> 下载 v1.0.0 - beta
+                        </a>
+                        <span class="file-info">MD5: 0FD12D85BF9FCBEA8C530658B5671968 | 文件大小: 2.13MB</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <a href="index.html" class="back-to-home animate delay-3">
+            <i class="fas fa-arrow-left"></i> 返回主页
+        </a>
+    </div>
+    <script>
+        // 与首页相同的动画脚本
+        document.addEventListener('DOMContentLoaded', function () {
+            const animateElements = document.querySelectorAll('.animate');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            animateElements.forEach(el => {
+                el.style.opacity = 0;
+                el.style.transform = 'translateY(20px)';
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+
+</html>

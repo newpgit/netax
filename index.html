@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>哪吒X车机优化模块</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4A90E2;
+            --primary-dark: #357ABD;
+            --secondary: #6BB9F0;
+            --dark: #2C3E50;
+            --light: #F5F7FA;
+            --accent: #A2DED0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            line-height: 1.7;
+            color: #333;
+            background-color: var(--light);
+            overflow-x: hidden;
+            padding-top: 60px;
+        }
+
+        /* 导航栏样式 */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            padding: 0.8rem 1rem;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-weight: bold;
+            color: var(--dark);
+            text-decoration: none;
+            font-size: clamp(0.9rem, 4vw, 1.1rem);
+            white-space: nowrap;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-link {
+            color: var(--dark);
+            text-decoration: none;
+            padding: 0.3rem 0.5rem;
+            font-size: clamp(0.8rem, 3.5vw, 0.95rem);
+            white-space: nowrap;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-link:hover {
+            background: rgba(74, 144, 226, 0.1);
+        }
+
+        .nav-link i {
+            margin-right: 0.3rem;
+            font-size: clamp(0.9rem, 4vw, 1rem);
+        }
+
+        /* 主要内容区域 */
+        .download-hero {
+            min-height: calc(100vh - 60px);
+            background: linear-gradient(135deg, var(--light) 0%, var(--secondary) 100%);
+            color: var(--dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://new-official-website-prod.oss-cn-hangzhou.aliyuncs.com/cmsstatic/static/images/car-x-device-a24.webp') no-repeat center center/cover;
+            opacity: 0.1;
+        }
+
+        .download-content {
+            max-width: 1200px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .download-main {
+            flex: 1;
+            min-width: 0;
+            padding: 0;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+            line-height: 1.2;
+        }
+
+        .version-info {
+            font-size: clamp(1rem, 4vw, 1.5rem);
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: clamp(0.8rem, 3vw, 1.2rem) clamp(1.5rem, 6vw, 2.8rem);
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: clamp(1rem, 4vw, 1.3rem);
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
+            border: none;
+            cursor: pointer;
+            margin: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .download-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(74, 144, 226, 0.4);
+        }
+
+        .requirements-preview {
+            background: white;
+            padding: 1.2rem;
+            border-radius: 10px;
+            margin: 2rem auto 0;
+            max-width: 600px;
+            width: 100%;
+            text-align: left;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .requirements-title {
+            font-size: clamp(1rem, 4vw, 1.3rem);
+            margin-bottom: 1rem;
+            color: var(--dark);
+            text-align: center;
+        }
+
+        .requirement-preview {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            font-size: clamp(0.9rem, 3.5vw, 1rem);
+        }
+
+        .requirement-icon {
+            color: var(--primary);
+            font-size: clamp(0.9rem, 3.5vw, 1rem);
+            margin-right: 0.6rem;
+            flex-shrink: 0;
+        }
+
+        .qq-group {
+            background: white;
+            padding: 1.2rem;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            cursor: pointer;
+            width: 100%;
+            max-width: 220px;
+            margin-top: 1.5rem;
+        }
+
+        .qq-group img {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1/1;
+            margin-bottom: 0.8rem;
+        }
+
+        .qq-group p {
+            font-size: clamp(0.9rem, 3.5vw, 1rem);
+            color: var(--dark);
+            word-break: break-all;
+        }
+
+        .qq-group-container {
+            flex: 0 0 auto;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .details-section {
+            padding: 3rem 1rem;
+            width: 100%;
+            margin: 0 auto;
+            background: var(--light);
+        }
+
+        .details-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .detail-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .detail-title {
+            font-size: clamp(1.2rem, 5vw, 1.6rem);
+            margin-bottom: 1rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+        }
+
+        .detail-title i {
+            margin-right: 0.8rem;
+            color: var(--primary);
+            font-size: clamp(1rem, 4vw, 1.4rem);
+        }
+
+        .steps {
+            margin-top: 1.2rem;
+        }
+
+        .step {
+            display: flex;
+            margin-bottom: 1rem;
+            align-items: center;
+            font-size: clamp(0.9rem, 3.5vw, 1rem);
+        }
+
+        .step-number {
+            background: var(--primary);
+            color: white;
+            width: clamp(22px, 6vw, 26px);
+            height: clamp(22px, 6vw, 26px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.8rem;
+            flex-shrink: 0;
+            font-size: clamp(0.8rem, 3vw, 0.9rem);
+        }
+
+        .requirements {
+            padding: 3rem 1rem;
+            text-align: center;
+            background: white;
+        }
+
+        .requirements-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .requirements-title {
+            font-size: clamp(1.5rem, 6vw, 2.2rem);
+            margin-bottom: 2rem;
+            color: var(--dark);
+        }
+
+        .requirements-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            text-align: left;
+            margin-top: 2rem;
+        }
+
+        .requirement-item {
+            background: var(--light);
+            padding: 1.2rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            font-size: clamp(0.9rem, 3.5vw, 1rem);
+        }
+
+        .requirement-icon {
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            margin-right: 0.8rem;
+            margin-top: 0.1rem;
+        }
+
+        .requirement-text {
+            font-size: inherit;
+        }
+
+        .warning {
+            margin-top: 2rem;
+            font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .view-full-requirements {
+            display: inline-block;
+            margin-top: 0.8rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 3.5vw, 1rem);
+        }
+
+        .view-full-requirements:hover {
+            text-decoration: underline;
+        }
+
+        /* 针对大屏幕的布局调整 */
+        @media (min-width: 768px) {
+            .download-content {
+                justify-content: space-between;
+                padding: 0 2rem;
+            }
+
+            .download-main {
+                padding: 0 2rem;
+                text-align: left;
+            }
+
+            .requirements-preview {
+                margin-left: 0;
+                margin-right: 0;
+                text-align: left;
+            }
+
+            .details-grid {
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 2rem;
+            }
+
+            .requirements-list {
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 1.5rem;
+            }
+
+            .qq-group-container {
+                width: auto;
+                margin-left: 2rem;
+            }
+
+            .qq-group {
+                margin-top: 0;
+            }
+        }
+
+        /* 极小屏幕优化 */
+        @media (max-width: 360px) {
+            .nav-link span {
+                display: none;
+            }
+
+            .nav-link i {
+                margin-right: 0;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate {
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        .delay-1 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.4s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.6s;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 固定导航栏 -->
+    <header>
+        <nav>
+            <a href="index.html" class="nav-brand"><span> 哪吒X车机优化模块</span></a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link active"><i class="fas fa-home"></i><span> 首页</span></a>
+                <a href="versions.html" class="nav-link"><i class="fas fa-history"></i><span> 版本</span></a>
+                <a target="_blank" class="nav-link" href="https://qm.qq.com/cgi-bin/qm/qr?k=rM-64vZFkPmz1RK9An9j6Z5SX9MoSjPv&jump_from=webapi&authKey=yI7swh/WP+JNeF/GvfEQ5E5rFL5hJZZ85RbldqIEpwSmGX1tgSvC5rUnrsPf8gmf"><i class="fas fa-users"></i><span> QQ群</span></a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 页面内容 -->
+    <section class="download-hero">
+        <div class="download-content">
+            <div class="download-main">
+                <h1 class="animate">哪吒插 - 车机优化模块</h1>
+                <p class="version-info animate delay-1">当前版本: v1.0.0 - beta | 更新日期: 2025-05-02</p>
+                <a href="./apps/netaX-v1.0.0-beta.apk" class="download-btn animate delay-2">
+                    <i class="fas fa-download"></i> 立即下载
+                </a>
+
+                <div class="requirements-preview animate delay-1">
+                    <h3 class="requirements-title">使用前请确认满足以下条件</h3>
+                    <div class="requirement-preview">
+                        <div class="requirement-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <p>设备已ROOT并授予超级用户权限</p>
+                    </div>
+                    <div class="requirement-preview">
+                        <div class="requirement-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <p>已在LSPosed中启用模块并勾选作用域</p>
+                    </div>
+                    <a href="#full-requirements" class="view-full-requirements">点一下查看完整使用要求</a>
+                </div>
+            </div>
+
+            <div class="qq-group-container animate delay-3">
+                <div class="qq-group"
+                    onclick="window.open('https://qun.qq.com/universal-share/share?ac=1&authKey=/qNO8GxGW6oGojiv/xg3tfb0Uc87zJIghVNYmSaNuBl24Ba4DCJqpzqxuAmIj/0W&busi_data=eyJncm91cENvZGUiOiIxMDQ3ODM3NDc4IiwidG9rZW4iOiJtNDRTS3o2L2RqRDRiN1pSOHp3ZTk2OGdyOHVOMGV5b3ROTXNicEM3VDlrWEVGY0J6T0h3bXBuVS8yZUxlNkdqIiwidWluIjoiMjc4NzI3MjkyNyJ9&data=Opv8JyWSzANBqltIpO_XZIo2BVqeLDj0xteWT-r_G6FVX9PKr0nqVatrF-FgpLt058HyMc-HAkNej11xJdxYs-v0PhmahrO5iRV_eR_asfo&svctype=5&tempid=h5_group_info')">
+                    <img src="./images/qgqr.png" alt="哪吒X车机优化QQ群二维码">
+                    <p>QQ交流群: 1047837478</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="details-section">
+        <div class="details-container">
+            <h2 class="requirements-title">版本详情与安装指南</h2>
+
+            <div class="details-grid">
+                <div class="detail-card animate">
+                    <h3 class="detail-title"><i class="fas fa-list-alt"></i> 更新内容</h3>
+                    <ul style="list-style-position: inside; line-height: 1.8;">
+                        <li>修复开启悬浮窗导致闪屏问题</li>
+
+                    </ul>
+                </div>
+
+                <div class="detail-card animate delay-1">
+                    <h3 class="detail-title"><i class="fas fa-download"></i> 安装步骤</h3>
+                    <div class="steps">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div>下载模块APK文件</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div>安装APK</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div>在LSPosed中启用模块</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">4</div>
+                            <div>勾选需要优化的应用</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="requirements" id="full-requirements">
+        <div class="requirements-container">
+            <h2 class="requirements-title">完整使用要求</h2>
+
+            <div class="requirements-list">
+                <div class="requirement-item">
+                    <div class="requirement-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <p class="requirement-text"><strong>设备已获取ROOT权限</strong></p>
+                </div>
+
+                <div class="requirement-item">
+                    <div class="requirement-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <p class="requirement-text"><strong>已在Magisk中授予超级用户权限</strong></p>
+                </div>
+
+                <div class="requirement-item">
+                    <div class="requirement-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <p class="requirement-text"><strong>模块已在LSPosed中启用</strong></p>
+                </div>
+
+                <div class="requirement-item">
+                    <div class="requirement-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <p class="requirement-text"><strong>正确勾选作用域对应APP</strong></p>
+                </div>
+            </div>
+
+            <p class="warning">
+                <i class="fas fa-exclamation-triangle"></i> 不满足上述条件将导致模块无法正常工作
+            </p>
+        </div>
+    </section>
+    <script>
+        // 优化后的动画脚本
+        document.addEventListener('DOMContentLoaded', function () {
+            const animateElements = document.querySelectorAll('.animate');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            animateElements.forEach(el => {
+                el.style.opacity = 0;
+                el.style.transform = 'translateY(20px)';
+                observer.observe(el);
+            });
+        });
+        
+    </script>
+</body>
+
+</html>
